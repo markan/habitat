@@ -1038,49 +1038,6 @@ unmount_filesystems() {
   umount_fs $v -l "$HAB_STUDIO_ROOT/var/run/docker.sock"
 }
 
-# **Internal** Sets the `$libexec_path` variable, which is the absolute path to
-# the `libexec/` directory for this software.
-set_libexec_path() {
-  # First check to see if we have been given a path to a `busybox` command
-  if [ -n "${BUSYBOX:-}" ] && [ -x "${BUSYBOX:-}" ]; then
-    bb="$BUSYBOX"
-    unset BUSYBOX
-  # Next, check to see if a `busybox` command is on `PATH`
-  elif command -v busybox > /dev/null; then
-    bb="$(command -v busybox)"
-  # Finally, check for each command required to calculate the path to libexec,
-  # after which we will have a `busybox` command we can use forever after
-  else
-    if ! command -v basename > /dev/null; then
-      exit_with "Busybox not found, so 'basename' command must be on PATH" 99
-    fi
-    if ! command -v dirname > /dev/null; then
-      exit_with "Busybox not found, so 'dirname' command must be on PATH" 99
-    fi
-    if ! command -v pwd > /dev/null; then
-      exit_with "Busybox not found, so 'pwd' command must be on PATH" 99
-    fi
-    if ! command -v readlink > /dev/null; then
-      exit_with "Busybox not found, so 'readlink' command must be on PATH" 99
-    fi
-    bb=
-  fi
-
-  if [ -n "${HAB_STUDIO_BINARY:-}" ]; then
-    version="$(unset HAB_STUDIO_BINARY; hab studio version | $bb cut -d ' ' -f 2)"
-    libexec_path="$(unset HAB_STUDIO_BINARY; hab pkg path core/hab-studio)/libexec"
-    studio_binary_libexec_path="$($bb dirname "$HAB_STUDIO_BINARY")/../libexec"
-  else
-    p=$($bb dirname "$0")
-    p=$(cd "$p"; $bb pwd)/$($bb basename "$0")
-    p=$($bb readlink -f "$p")
-    p=$($bb dirname "$p")
-
-    libexec_path="$($bb dirname "$p")/libexec"
-  fi
-  return 0
-}
-
 # If `file_path` is not present in the studio, copy in a minimal
 # default version from the studio package's `defaults` directory.
 copy_minimal_default_file_if_not_present() {
@@ -1109,15 +1066,7 @@ copy_minimal_default_file() {
 
 # # Main Flow
 
-# Set the `$libexec_path` variable containing an absolute path to `../libexec`
-# from this program. This directory contains Studio type definitions and the
-# `busybox` binary which is used for all shell out commands.
-set_libexec_path
-# Finally, unset `PATH` so there is zero chance we're going to rely on the
-# operating system's commands.
 unset PATH
-
-
 # ## Default variables
 
 # The root path of the Habitat file system. If the `$HAB_ROOT_PATH` environment
@@ -1143,9 +1092,9 @@ ERR_MOUNT_PERSISTS=81
 ERR_REMAINING_MOUNTS=82
 
 #
-bb="$libexec_path/busybox"
+#bb="$libexec_path/busybox"
 #
-hab="$libexec_path/hab"
+#hab="$libexec_path/hab"
 # The current version of Habitat Studio
 : "${version:=@version@}"
 # The author of this program

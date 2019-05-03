@@ -4,7 +4,12 @@ pkg_origin=core
 pkg_version=$(cat "$SRC_PATH/../../VERSION")
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
 pkg_license=('Apache-2.0')
-pkg_deps=()
+pkg_deps=(
+  core/busybox-static 
+  core/hab/$pkg_version
+  core/hab-backline/$pkg_version
+  core/hab-plan-build/$pkg_version
+)
 pkg_build_deps=(core/coreutils
                 core/tar
                 core/xz
@@ -12,6 +17,16 @@ pkg_build_deps=(core/coreutils
                 core/busybox-static
                 core/hab)
 pkg_bin_dirs=(bin)
+
+do_prepare() {
+  set_runtime_env "HAB_STUDIO_BACKLINE_PKG" "$(pkg_path_for core/hab-backline | cut -d/ -f 4,5,6,7)"
+  set_runtime_env "HAB_STUDIO_HAB_PKG" "$(pkg_path_for core/hab | cut -d/ -f 4,5,6,7)"
+  set_runtime_env "HAB_STUDIO_PLAN_BUILD_PKG" "$(pkg_path_for core/hab-plan-build | cut -d/ -f 4,5,6,7)"
+  set_runtime_env "HAB_STUDIO_BUSYBOX_PKG" "$(pkg_path_for core/busybox-static | cut -d/ -f 4,5,6,7)"
+  set_runtime_env "bb" "$(pkg_path_for core/busybox-static)/bin/busybox"
+  set_runtime_env "hab" "$(pkg_path_for core/hab)/bin/hab"
+  set_runtime_env "libexec_path" "$pkg_prefix/libexec"
+}
 
 do_build() {
   cp -v "$SRC_PATH"/bin/hab-studio.sh hab-studio
@@ -34,16 +49,6 @@ do_install() {
     [[ -e $f ]] || break # see http://mywiki.wooledge.org/BashPitfalls#pf1
     install -v -D "$f" "$pkg_prefix"/libexec/"$f"
   done
-
-  lbb="$pkg_prefix/libexec/busybox"
-
-  # Install a copy of a statically built busybox under `libexec/`
-  install -v -D "$(pkg_path_for busybox-static)"/bin/busybox "$lbb"
-
-  hab_dir=$(tr '/' '-' < "$(pkg_path_for hab)"/IDENT)
-  install -v -D "$(pkg_path_for hab)"/bin/hab \
-    "$pkg_prefix"/libexec/"$hab_dir"/bin/hab
-  ln -sv "$hab_dir"/bin/hab "$pkg_prefix"/libexec/hab
 
   cp -rv "${SRC_PATH}/defaults" "${pkg_prefix}"
 }
