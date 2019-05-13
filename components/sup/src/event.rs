@@ -42,7 +42,8 @@ use self::types::{EventMessage,
                   EventMetadata,
                   HealthCheckEvent,
                   ServiceStartedEvent,
-                  ServiceStoppedEvent};
+                  ServiceStoppedEvent,
+                  ServiceUpdateStartedEvent};
 use crate::{error::Result as SupResult,
             manager::{service::{HealthCheck,
                                 Service},
@@ -53,7 +54,8 @@ pub use error::{Error,
 use futures::sync::mpsc::UnboundedSender;
 use habitat_common::types::{AutomateAuthToken,
                             EventStreamMetadata};
-use habitat_core::env::Config as EnvConfig;
+use habitat_core::{env::Config as EnvConfig,
+                   package::ident::PackageIdent};
 use state::Container;
 use std::{net::SocketAddr,
           num::ParseIntError,
@@ -194,6 +196,22 @@ pub fn service_stopped(service: &Service) {
     if stream_initialized() {
         publish(ServiceStoppedEvent { service_metadata: Some(service.to_service_metadata()),
                                       event_metadata:   None, });
+    }
+}
+
+/// Send an event at the start of a Service update.
+pub fn service_update_started(service: &Service, update: &PackageIdent) {
+    if stream_initialized() {
+        publish(ServiceUpdateStartedEvent { event_metadata:   None,
+                                            service_metadata: Some(service.to_service_metadata()),
+                                            update_origin:    update.origin.clone(),
+                                            update_name:      update.name.clone(),
+                                            update_version:   update.version
+                                                                    .clone()
+                                                                    .unwrap_or_default(),
+                                            update_release:   update.release
+                                                                    .clone()
+                                                                    .unwrap_or_default(), });
     }
 }
 
