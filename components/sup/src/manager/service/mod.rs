@@ -116,7 +116,7 @@ enum BindStatus<'a> {
     Unknown(SupError),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Service {
     pub service_group:       ServiceGroup,
     pub bldr_url:            String,
@@ -132,7 +132,6 @@ pub struct Service {
     pub initialized:         bool,
     pub user_config_updated: bool,
 
-    #[serde(skip_serializing)]
     config_renderer: CfgRenderer,
     health_check: HealthCheck,
     last_election_status: ElectionStatus,
@@ -161,23 +160,18 @@ pub struct Service {
     /// We don't serialize because this is purely runtime information
     /// that should be reconciled against the current state of the
     /// census.
-    #[serde(skip_serializing)]
     unsatisfied_binds: HashSet<ServiceBind>,
     hooks: HookTable,
     config_from: Option<PathBuf>,
-    #[serde(skip_serializing)]
     scheduled_health_check: Option<Instant>,
     manager_fs_cfg: Arc<FsCfg>,
-    #[serde(rename = "process")]
     supervisor: Supervisor,
     svc_encrypted_password: Option<String>,
     health_check_interval: HealthCheckInterval,
 
-    #[serde(skip_serializing)]
     /// Whether a service's default configuration changed on a package
     /// update. Used to control when templates are re-rendered.
     defaults_updated: bool,
-    #[serde(skip_serializing)]
     gateway_state: Arc<RwLock<GatewayState>>,
 }
 
