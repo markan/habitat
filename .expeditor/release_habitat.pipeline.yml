@@ -8,9 +8,9 @@ steps:
 # Release!
 #######################################################################
 
-  - label: "[First step]"
+  - label: ":rabbit: [First step]"
     command:
-      - echo "HI"
+      - echo "OH NO INSTEADS"
     agents:
       queue: 'default-privileged'
     plugins:
