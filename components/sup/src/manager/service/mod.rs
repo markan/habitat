@@ -53,6 +53,7 @@ use habitat_core::{crypto::hash,
                         svc_hooks_path,
                         SvcDir,
                         FS_ROOT_PATH},
+                   os::process::ShutdownTimeout,
                    package::{metadata::Bind,
                              PackageIdent,
                              PackageInstall},
@@ -131,6 +132,7 @@ pub struct Service {
     pub sys:                 Arc<Sys>,
     pub initialized:         bool,
     pub user_config_updated: bool,
+    pub shutdown_timeout:    Option<ShutdownTimeout>,
 
     config_renderer: CfgRenderer,
     health_check: HealthCheck,
@@ -225,7 +227,8 @@ impl Service {
                      svc_encrypted_password: spec.svc_encrypted_password,
                      health_check_interval: spec.health_check_interval,
                      defaults_updated: false,
-                     gateway_state })
+                     gateway_state,
+                     shutdown_timeout: spec.shutdown_timeout })
     }
 
     /// Returns the config root given the package and optional config-from path.
@@ -437,6 +440,7 @@ impl Service {
             spec.svc_encrypted_password = Some(password.clone())
         }
         spec.health_check_interval = self.health_check_interval;
+        spec.shutdown_timeout = self.shutdown_timeout;
         spec
     }
 
