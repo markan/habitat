@@ -223,10 +223,17 @@ function New-Studio {
     New-Item -Name src -ItemType Junction -target $SRC_PATH.Path | Out-Null
   }
 
+  $env:FS_ROOT=$HAB_STUDIO_ROOT
+  hab pkg install $env:HAB_STUDIO_HAB_PKG
+  hab pkg install $env:HAB_STUDIO_7ZIP_PKG
+  hab pkg install $env:HAB_STUDIO_POWERSHELL_PKG
+  hab pkg install $env:HAB_STUDIO_PLAN_BUILD_PKG
+
   $pathArray = @(
-    "$PSScriptRoot\powershell",
-    "$PSScriptRoot\hab",
-    "$PSScriptRoot\7zip",
+    (Join-Path $env:HAB_STUDIO_HAB_PKG "bin")
+    (Join-Path $env:HAB_STUDIO_POWERSHELL_PKG "bin")
+    (Join-Path $env:HAB_STUDIO_7ZIP_PKG "bin")
+    (Join-Path $env:HAB_STUDIO_PLAN_BUILD_PKG "bin")
     "$PSScriptRoot",
     "$env:WINDIR\system32",
     "$env:WINDIR",
@@ -234,6 +241,8 @@ function New-Studio {
   )
 
   $env:PATH = [String]::Join(";", $pathArray)
+
+  Write-Host (Get-Command hab)
 
   if($env:HAB_ORIGIN_KEYS) {
     $secret_keys = @()
@@ -256,6 +265,7 @@ function New-Studio {
     $env:HAB_CACHE_KEY_PATH = Join-Path $env:FS_ROOT "hab\cache\keys"
   }
 
+  
 
   Set-Secrets
 
