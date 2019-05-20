@@ -12,10 +12,10 @@ steps:
     command:
       - .expeditor/scripts/build_component.sh hab
     expeditor:
-      # secrets:
-      #   SCOTTHAIN_HAB_AUTH_TOKEN:
-      #     path: account/static/habitat/chef-ci
-      #     field: scotthain-sig-key
+      secrets:
+        HAB_AUTH_TOKEN:
+          path: account/static/habitat/chef-ci
+          field: scotthain-sig-key
       executor:
         docker:
           privileged: true
