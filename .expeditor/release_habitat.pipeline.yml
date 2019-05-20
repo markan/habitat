@@ -10,7 +10,7 @@ steps:
 
   - label: "[First step]"
     command:
-      - echo "HI"
+      - echo "ohai mundo"
     agents:
       queue: 'default-privileged'
     plugins:
