@@ -8,18 +8,19 @@ steps:
 # Release!
 #######################################################################
 
-  - label: "[First step]"
+  - label: "[build hab]"
     command:
-      - echo "ohai mundo"
-    agents:
-      queue: 'default-privileged'
-    plugins:
-      docker#v3.0.1:
-        always-pull: true
-        user: "buildkite-agent"
-        group: "buildkite-agent"
-        image: "chefes/buildkite"
-    timeout_in_minutes: 10
-    retry:
-      automatic:
-        limit: 1
+      - .expeditor/scripts/build_component.sh hab
+    expeditor:
+      # secrets:
+      #   SCOTTHAIN_HAB_AUTH_TOKEN:
+      #     path: account/static/habitat/chef-ci
+      #     field: scotthain-sig-key
+      executor:
+        docker:
+          privileged: true
+          environment:
+            - HAB_ORIGIN=core
+            - HAB_LICENSE="accept-no-persist"
+            - HAB_STUDIO_SECRET_HAB_LICENSE="accept-no-persist"
+            # - HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
