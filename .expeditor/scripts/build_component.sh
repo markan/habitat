@@ -20,6 +20,10 @@ component=${1}
 
 channel=$(get_release_channel)
 
+
+echo "Here is the BUILD_PKG_TARGET: '${BUILD_PKG_TARGET}'"
+
+
 # `set_hab_binary` currently _must_ be called first!
 set_hab_binary
 import_keys
