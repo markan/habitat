@@ -4,6 +4,10 @@ set -euo pipefail
 
 source .buildkite/scripts/shared.sh
 
+# This currently overrides some functions from the pure buildkite
+# shared.sh file above. As we migrate, more things will be added to
+# this file.
+source .expeditor/scripts/shared.sh
 
 ########################################################################
 
