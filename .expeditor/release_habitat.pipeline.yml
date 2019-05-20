@@ -23,4 +23,5 @@ steps:
             - HAB_ORIGIN=core
             - HAB_LICENSE="accept-no-persist"
             - HAB_STUDIO_SECRET_HAB_LICENSE="accept-no-persist"
+            - BUILD_PKG_TARGET="x86_64-linux" # TODO: best place to put this?
             # - HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
