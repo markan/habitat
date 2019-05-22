@@ -1,4 +1,8 @@
 expeditor:
+  secrets:
+    ACCEPTANCE_HAB_AUTH_TOKEN:
+      path: account/static/habitat/chef-ci
+      field: scotthain-sig-key
   defaults:
     buildkite:
       timeout_in_minutes: 30
@@ -35,10 +39,6 @@ steps:
     command:
       - .expeditor/scripts/build_component.sh plan-build
     expeditor:
-      secrets:
-        ACCEPTANCE_HAB_AUTH_TOKEN:
-          path: account/static/habitat/chef-ci
-          field: scotthain-sig-key
       executor:
         docker:
           privileged: true
