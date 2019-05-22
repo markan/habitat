@@ -9,7 +9,7 @@ set -eou pipefail
 # through the pipeline. As we bring more platforms into play, this may
 # change. FYI.
 import_keys() {
-    echo "--- :key: Downloading 'core' public keys from Builder"
+    echo "--- :key: Downloading 'core' public keys from ${HAB_BLDR_URL:-Builder}"
     ${hab_binary:?} origin key download core
     echo "--- :closed_lock_with_key: Downloading latest 'core' secret key from ${HAB_BLDR_URL:-Builder}"
     ${hab_binary:?} origin key download \
