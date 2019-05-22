@@ -26,7 +26,13 @@ echo "Here is the BUILD_PKG_TARGET: '${BUILD_PKG_TARGET}'"
 
 # `set_hab_binary` currently _must_ be called first!
 set_hab_binary
-import_keys
+
+(
+    # shellcheck disable=2030
+    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
+    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
+    import_keys
+)
 
 echo "--- :zap: Cleaning up old studio, if present"
 ${hab_binary} studio rm
@@ -49,9 +55,9 @@ else
 fi
 source results/last_build.env
 
-# TODO (SM): The 0.59.0 hab cli that we rely on for x86_64-linux builds 
+# TODO (SM): The 0.59.0 hab cli that we rely on for x86_64-linux builds
 # doesn't emit pkg_target. Until we've sufficiently bootstrapped ourselves
-# we need to set it. This can be removed when studio-ci-common pulls 0.63.0 
+# we need to set it. This can be removed when studio-ci-common pulls 0.63.0
 # or newer. This is safe to do because the x86_64-linux-kernel2 builds will
 # already have this value set.
 : "${pkg_target:=x86_64-linux}"
