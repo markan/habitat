@@ -11,7 +11,7 @@ set -eou pipefail
 import_keys() {
     echo "--- :key: Downloading 'core' public keys from Builder"
     ${hab_binary:?} origin key download core
-    echo "--- :closed_lock_with_key: Downloading latest 'core' secret key from Builder"
+    echo "--- :closed_lock_with_key: Downloading latest 'core' secret key from ${HAB_BLDR_URL:-Builder}"
     ${hab_binary:?} origin key download \
         --auth="${HAB_AUTH_TOKEN}" \
         --secret \
