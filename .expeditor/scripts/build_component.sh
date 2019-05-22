@@ -48,6 +48,9 @@ export HAB_ORIGIN=core
 #
 # CI_OVERRIDE_CHANNEL is basically used to tell the studio which
 # hab/backline to grab
+
+# TODO: should we be building from acceptance or live?
+
 if [[ "${new_studio:-}" ]]; then
     CI_OVERRIDE_CHANNEL="${channel}" HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
 else
@@ -65,26 +68,32 @@ source results/last_build.env
 
 # TODO: after 0.79.0 we can reenable this. We are explicitly using curl to upload
 # due to this bug: https://github.com/habitat-sh/builder/issues/940
-# echo "--- :habicat: Uploading ${pkg_ident} to Builder in the '${channel}' channel"
-# ${hab_binary} pkg upload \
-#     --channel="${channel}" \
-#     --auth="${HAB_AUTH_TOKEN}" \
-#     "results/${pkg_artifact}"
-#
-# ${hab_binary} pkg promote \
-#     --auth="${HAB_AUTH_TOKEN}" \
-#     "${pkg_ident}" "${channel}" "${pkg_target}"
 
-echo "--- :partyparrot: Manually uploading '${pkg_ident:?}' (${pkg_target}) to Builder"
-curl --request POST \
-     --header "Content-Type: application/octet-stream" \
-     --header "Authorization: Bearer $HAB_AUTH_TOKEN" \
-     --data-binary "@results/${pkg_artifact:?}" \
-     --fail \
-     --verbose \
-    "https://bldr.habitat.sh/v1/depot/pkgs/${pkg_ident}?checksum=${pkg_blake2bsum:?}&target=${pkg_target}"
+(
+    # shellcheck disable=2030
+    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
+    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
 
-promote "${pkg_ident}" "${pkg_target}" "${channel}"
+    echo "--- :habicat: Uploading ${pkg_ident} to ${HAB_BLDR_URL:-Builder} in the '${channel}' channel"
+
+    ${hab_binary} pkg upload \
+                  --channel="${channel}" \
+                  --auth="${HAB_AUTH_TOKEN}" \
+                  "results/${pkg_artifact}"
+
+    ${hab_binary} pkg promote \
+                  --auth="${HAB_AUTH_TOKEN}" \
+                  "${pkg_ident}" "${channel}" "${pkg_target}"
+)
+# echo "--- :partyparrot: Manually uploading '${pkg_ident:?}' (${pkg_target}) to Builder"
+# curl --request POST \
+#      --header "Content-Type: application/octet-stream" \
+#      --header "Authorization: Bearer $HAB_AUTH_TOKEN" \
+#      --data-binary "@results/${pkg_artifact:?}" \
+#      --fail \
+#      --verbose \
+#     "https://bldr.habitat.sh/v1/depot/pkgs/${pkg_ident}?checksum=${pkg_blake2bsum:?}&target=${pkg_target}"
+# promote "${pkg_ident}" "${pkg_target}" "${channel}"
 set_target_metadata "${pkg_ident}" "${pkg_target}"
 
 echo "--- :writing_hand: Recording Build Metadata"
