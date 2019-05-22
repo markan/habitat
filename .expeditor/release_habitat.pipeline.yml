@@ -18,7 +18,7 @@ steps:
 #######################################################################
 
   # TODO If you add quotes around the target currently breaks a bash case statement :/
-  - label: "[build hab]"
+  - label: "[:linux: build hab]"
     command:
       - .expeditor/scripts/build_component.sh hab
     expeditor:
@@ -31,7 +31,7 @@ steps:
             - ACCEPTANCE_HAB_AUTH_TOKEN
             - ACCEPTANCE_HAB_BLDR_URL
 
-  - label: "[build hab-plan-build]"
+  - label: "[:linux: build hab-plan-build]"
     command:
       - .expeditor/scripts/build_component.sh plan-build
     expeditor:
@@ -46,7 +46,7 @@ steps:
 
   - wait
 
-  - label: "[build hab-backline]"
+  - label: "[:linux: build hab-backline]"
     command:
       - .expeditor/scripts/build_component.sh backline
     expeditor:
@@ -61,7 +61,7 @@ steps:
 
   - wait
 
-  - label: "[build hab-studio]"
+  - label: "[:linux: build hab-studio]"
     command:
       - .expeditor/scripts/build_component.sh studio
     expeditor:
