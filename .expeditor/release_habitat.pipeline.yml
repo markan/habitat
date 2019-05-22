@@ -29,3 +29,4 @@ steps:
             - ACCEPTANCE_HAB_AUTH_TOKEN
             - ACCEPTANCE_HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
             - HAB_LICENSE
+            - HAB_STUDIO_SECRET_HAB_LICENSE # sigh
