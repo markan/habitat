@@ -23,14 +23,13 @@ channel=$(get_release_channel)
 
 echo "Here is the BUILD_PKG_TARGET: '${BUILD_PKG_TARGET}'"
 
-
-# `set_hab_binary` currently _must_ be called first!
-set_hab_binary
-
 (
     # shellcheck disable=2030
     export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
     export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
+
+    # `set_hab_binary` currently _must_ be called first!
+    set_hab_binary
     import_keys
 )
 

@@ -116,8 +116,14 @@ set_hab_binary() {
         # Note that we are explicitly not binlinking here; this is to
         # prevent accidentally polluting the builder for any future
         # runs that may take place on it.
-        sudo HAB_LICENSE="accept-no-persist" "${hab_binary:?}" pkg install "${hab_ident}"
-        sudo HAB_LICENSE="accept-no-persist" "${hab_binary:?}" pkg install "$(get_studio_ident $pkg_target)"
+        sudo HAB_LICENSE="accept-no-persist" \
+             "${hab_binary:?}" pkg install "${hab_ident}" \
+             --auth=${HAB_AUTH_TOKEN} \
+             --url=${HAB_BLDR_URL}
+        sudo HAB_LICENSE="accept-no-persist" \
+             "${hab_binary:?}" pkg install "$(get_studio_ident $pkg_target)" \
+             --auth=${HAB_AUTH_TOKEN} \
+             --url=${HAB_BLDR_URL}
         hab_binary="/hab/pkgs/${hab_ident}/bin/hab"
         declare -g new_studio=1
     else
