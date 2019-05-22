@@ -44,18 +44,22 @@ echo "--- :habicat: Building components/${component}"
 unset HAB_BINLINK_DIR
 export HAB_ORIGIN=core
 
-# Eww
-#
-# CI_OVERRIDE_CHANNEL is basically used to tell the studio which
-# hab/backline to grab
+(
+    # Building with dependencies from Acceptance!
+    # shellcheck disable=2030
+    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
+    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
 
-# TODO: should we be building from acceptance or live?
-
-if [[ "${new_studio:-}" ]]; then
-    CI_OVERRIDE_CHANNEL="${channel}" HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
-else
-    HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
-fi
+    # Eww
+    #
+    # CI_OVERRIDE_CHANNEL is basically used to tell the studio which
+    # hab/backline to grab
+    if [[ "${new_studio:-}" ]]; then
+        CI_OVERRIDE_CHANNEL="${channel}" HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
+    else
+        HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
+    fi
+)
 source results/last_build.env
 
 # TODO (SM): The 0.59.0 hab cli that we rely on for x86_64-linux builds
