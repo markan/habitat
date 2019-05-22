@@ -6,9 +6,11 @@ expeditor:
   defaults:
     buildkite:
       timeout_in_minutes: 30
-      # env:
-      #   HAB_LICENSE: "accept-no-persist"
-      #   HAB_STUDIO_SECRET_HAB_LICENSE: "accept-no-persist"
+      env:
+        HAB_ORIGIN: "core"
+        ACCEPTANCE_HAB_BLDR_URL: "https://bldr.acceptance.habitat.sh"
+        # HAB_LICENSE: "accept-no-persist"
+        # HAB_STUDIO_SECRET_HAB_LICENSE: "accept-no-persist"
 
 steps:
 #######################################################################
@@ -20,20 +22,14 @@ steps:
     command:
       - .expeditor/scripts/build_component.sh hab
     expeditor:
-      secrets:
-        ACCEPTANCE_HAB_AUTH_TOKEN:
-          path: account/static/habitat/chef-ci
-          field: scotthain-sig-key
       executor:
         docker:
           privileged: true
           environment:
-            - HAB_ORIGIN=core
-            - BUILD_PKG_TARGET=x86_64-linux # TODO: best place to put this?
+            - HAB_ORIGIN
+            - BUILD_PKG_TARGET=x86_64-linux
             - ACCEPTANCE_HAB_AUTH_TOKEN
-            - ACCEPTANCE_HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
-            # - HAB_LICENSE
-            # - HAB_STUDIO_SECRET_HAB_LICENSE # sigh
+            - ACCEPTANCE_HAB_BLDR_URL
 
   - label: "[build hab-plan-build]"
     command:
@@ -43,9 +39,22 @@ steps:
         docker:
           privileged: true
           environment:
-            - HAB_ORIGIN=core
-            - BUILD_PKG_TARGET=x86_64-linux # TODO: best place to put this?
+            - HAB_ORIGIN
+            - BUILD_PKG_TARGET=x86_64-linux
             - ACCEPTANCE_HAB_AUTH_TOKEN
-            - ACCEPTANCE_HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
-            # - HAB_LICENSE
-            # - HAB_STUDIO_SECRET_HAB_LICENSE # sigh
+            - ACCEPTANCE_HAB_BLDR_URL
+
+  - wait
+
+  - label: "[build hab-backline]"
+    command:
+      - .expeditor/scripts/build_component.sh backline
+    expeditor:
+      executor:
+        docker:
+          privileged: true
+          environment:
+            - HAB_ORIGIN
+            - BUILD_PKG_TARGET=x86_64-linux
+            - ACCEPTANCE_HAB_AUTH_TOKEN
+            - ACCEPTANCE_HAB_BLDR_URL
