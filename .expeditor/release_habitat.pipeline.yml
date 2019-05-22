@@ -25,6 +25,6 @@ steps:
           environment:
             - HAB_ORIGIN=core
             - BUILD_PKG_TARGET=x86_64-linux # TODO: best place to put this?
-            - HAB_AUTH_TOKEN
+#            - HAB_AUTH_TOKEN
             # TODO If you add quotes, then that can affect things in unexpected ways. Using "x86_64-linux" ends up failing in a bash case statement somehow
             #- HAB_BLDR_URL=https://bldr.acceptance.habitat.sh
