@@ -9,6 +9,9 @@ source .buildkite/scripts/shared.sh
 # this file.
 source .expeditor/scripts/shared.sh
 
+export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
+export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
+
 ########################################################################
 
 # `component` should be the subdirectory name in `components` where a
@@ -21,17 +24,9 @@ component=${1}
 channel=$(get_release_channel)
 
 
-echo "Here is the BUILD_PKG_TARGET: '${BUILD_PKG_TARGET}'"
-
-(
-    # shellcheck disable=2030
-    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
-    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
-
-    # `set_hab_binary` currently _must_ be called first!
-    set_hab_binary
-    import_keys
-)
+# `set_hab_binary` currently _must_ be called first!
+set_hab_binary
+import_keys
 
 echo "--- :zap: Cleaning up old studio, if present"
 ${hab_binary} studio rm
@@ -43,22 +38,15 @@ echo "--- :habicat: Building components/${component}"
 unset HAB_BINLINK_DIR
 export HAB_ORIGIN=core
 
-(
-    # Building with dependencies from Acceptance!
-    # shellcheck disable=2030
-    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
-    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
-
-    # Eww
-    #
-    # CI_OVERRIDE_CHANNEL is basically used to tell the studio which
-    # hab/backline to grab
-    if [[ "${new_studio:-}" ]]; then
-        CI_OVERRIDE_CHANNEL="${channel}" HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
-    else
-        HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
-    fi
-)
+# Eww
+#
+# CI_OVERRIDE_CHANNEL is basically used to tell the studio which
+# hab/backline to grab
+if [[ "${new_studio:-}" ]]; then
+    CI_OVERRIDE_CHANNEL="${channel}" HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
+else
+    HAB_BLDR_CHANNEL="${channel}" ${hab_binary} pkg build "components/${component}"
+fi
 source results/last_build.env
 
 # TODO (SM): The 0.59.0 hab cli that we rely on for x86_64-linux builds
@@ -72,22 +60,17 @@ source results/last_build.env
 # TODO: after 0.79.0 we can reenable this. We are explicitly using curl to upload
 # due to this bug: https://github.com/habitat-sh/builder/issues/940
 
-(
-    # shellcheck disable=2030
-    export HAB_AUTH_TOKEN="${ACCEPTANCE_HAB_AUTH_TOKEN}"
-    export HAB_BLDR_URL="${ACCEPTANCE_HAB_BLDR_URL}"
+echo "--- :habicat: Uploading ${pkg_ident} to ${HAB_BLDR_URL:-Builder} in the '${channel}' channel"
 
-    echo "--- :habicat: Uploading ${pkg_ident} to ${HAB_BLDR_URL:-Builder} in the '${channel}' channel"
+${hab_binary} pkg upload \
+              --channel="${channel}" \
+              --auth="${HAB_AUTH_TOKEN}" \
+              "results/${pkg_artifact}"
 
-    ${hab_binary} pkg upload \
-                  --channel="${channel}" \
-                  --auth="${HAB_AUTH_TOKEN}" \
-                  "results/${pkg_artifact}"
+${hab_binary} pkg promote \
+              --auth="${HAB_AUTH_TOKEN}" \
+              "${pkg_ident}" "${channel}" "${pkg_target}"
 
-    ${hab_binary} pkg promote \
-                  --auth="${HAB_AUTH_TOKEN}" \
-                  "${pkg_ident}" "${channel}" "${pkg_target}"
-)
 # echo "--- :partyparrot: Manually uploading '${pkg_ident:?}' (${pkg_target}) to Builder"
 # curl --request POST \
 #      --header "Content-Type: application/octet-stream" \
